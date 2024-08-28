@@ -5,6 +5,9 @@ import ply.lex as lex
 from sys import argv, exit
 from myerror import MyError
 
+showKey = False
+haveError = False
+
 import logging
 logging.basicConfig(
     level=logging.DEBUG,
@@ -167,29 +170,41 @@ def define_column(input, lexpos):
 
 
 def t_error(token):
+    global haveError
 
-    # file = token.lexer.filename
     line = token.lineno
-    # column = define_column(token.lexer.backup_data, token.lexpos)
-    message = le.newError('ERR-LEX-INV-CHAR', valor=token.value[0])
-    # print(f"[{file}]:[{line},{column}]: {message}.")
-    print(message)
+    column = define_column(token.lexer.lexdata, token.lexpos)
+    message = le.newError(showKey,'ERR-LEX-INV-CHAR', line, column, valor=token.value[0])
 
     token.lexer.skip(1)
 
-    # token.lexer.has_error = True
+    
 
 
 def main():
+    global showKey  # Variável global para indicar se a opção de exibir a chave está ativada
+    locationTTP = None  # Variável para armazenar a posição do arquivo '.tpp' na lista de argumentos
 
+    # Verifica se foram fornecidos argumentos de linha de comando
     if(len(sys.argv) < 2):
-        raise TypeError(le.newError('ERR-LEX-USE'))
-
+        raise TypeError(le.newError(showKey,'ERR-LEX-USE'))
+    
+    # Verifica os argumentos de linha de comando
+    for arg in sys.argv:
+        aux = arg.split('.')
+        # Armazena a posição do arquivo '.tpp' na lista de argumentos
+        if aux[-1] == 'tpp':
+            locationTTP = sys.argv.index(arg)
+        # Ativa a opção de exibir a chave, se presente
+        if arg == '-k':
+            showKey = True
     aux = argv[1].split('.')
+    # Verifica se o arquivo fornecido possui a extensão correta
     if aux[-1] != 'tpp':
-      raise IOError(le.newError('ERR-LEX-NOT-TPP'))
-    elif not os.path.exists(argv[1]):
-        raise IOError(le.newError('ERR-LEX-FILE-NOT-EXISTS'))
+        raise IOError(le.newError(showKey,'ERR-LEX-NOT-TPP'))
+    # Verifica se o arquivo fornecido existe no sistema
+    elif not os.path.exists(argv[locationTTP]):
+        raise IOError(le.newError(showKey,'ERR-LEX-FILE-NOT-EXISTS'))
     else:
         data = open(argv[1])
 
@@ -200,10 +215,11 @@ def main():
         while True:
             tok = lexer.token()
             if not tok:
-                break      # No more input
-            #print(tok)
+                break
+            # Imprime o tipo do token (exceto para tokens inválidos)
+
             print(tok.type)
-            #print(tok.value)
+
 
 def test(pdata):
   data = open(pdata)
@@ -225,11 +241,9 @@ def test(pdata):
 lexer = lex.lex(optimize=True, debug=True, debuglog=log)
 
 if __name__ == "__main__":
-
     try:
         main()
+    except (ValueError, TypeError) as e:
+        print(e)
     except Exception as e:
         print(e)
-    except (ValueError, TypeError):
-        print(e)
-

@@ -1,31 +1,22 @@
 import configparser
-import inspect
 
-config = None
+class MyError:
+    def __init__(self, et):
+        self.config = configparser.RawConfigParser()
+        self.config.read('ErrorMessages.properties')
+        self.errorType = et
 
-class MyError():
+    def newError(self, showKey, key, linha=None, coluna=None, **data):
+        if showKey:
+            return key if linha is None or coluna is None else f"Erro[{linha}][{coluna}]: {key}"
 
-  def __init__(self, et):
-    self.config = configparser.RawConfigParser()
-    self.config.read('ErrorMessages.properties')
-    self.errorType = et
+        message = f"Erro[{linha}][{coluna}]: " if linha is not None and coluna is not None else ""
 
-  def newError(self, key, **data):
-    message = ''
-    if(key):
-      message = self.config.get(self.errorType, key)
-    if(data):
-      for key, value in data.items():
-        message = message + ", " f"{key}: {value}"
+        if key:
+            message += self.config.get(self.errorType, key)
 
-    return message
-    #print(message)
-    #frame = inspect.stack()[1][0]
+        if data:
+            data_str = ", ".join(f"{k}: {v}" for k, v in data.items())
+            message += ", " + data_str if data_str else ""
 
-    #print(inspect.getframeinfo(frame).__getitem__(0))
-    #print(inspect.getframeinfo(frame).__getitem__(1))
-
-
-# le = MyError('LexerErrors')
-
-# print(le.newError('ERR-LEX-001'))
+        return message
