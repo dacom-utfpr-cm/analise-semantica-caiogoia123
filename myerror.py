@@ -8,7 +8,7 @@ class MyError:
 
     def newError(self, showKey, key, linha=None, coluna=None, **data):
         if showKey:
-            return key if linha is None or coluna is None else f"Erro[{linha}][{coluna}]: {key}"
+            return key if linha is None or coluna is None else f"{key}"
 
         message = f"Erro[{linha}][{coluna}]: " if linha is not None and coluna is not None else ""
 

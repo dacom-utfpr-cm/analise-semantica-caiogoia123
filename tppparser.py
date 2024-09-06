@@ -93,9 +93,9 @@ def p_declaracao(p):
 #                |
 #               (:)
 
-
 def p_declaracao_variaveis(p):
     """declaracao_variaveis : tipo DOIS_PONTOS lista_variaveis"""
+#fazer erro da declaracao_variavel
 
     pai = MyNode(name='declaracao_variaveis', type='DECLARACAO_VARIAVEIS')
     p[0] = pai
@@ -192,13 +192,16 @@ def p_indice_error(p):
                 | indice ABRE_COLCHETE expressao error
                 | indice error expressao FECHA_COLCHETE
                 | ABRE_COLCHETE expressao VIRGULA
+                | indice ABRE_COLCHETE error
     """
 
     pai = MyNode(name='ERR-SYN-INDICE', type='ERROR')
     p[0] = pai
     global arrError 
     global showKey
-    arrError.append(error_handler.newError(showKey,'ERR-SYN-INDICE'))
+    token = p
+    column = find_column(token.lexer.lexdata, token)
+    arrError.append(error_handler.newError(showKey,'ERR-SYN-INDICE',linha=token.lineno(2), coluna=column))
 
     # if len(p) == 4:
     #     p[1] = new_node('ABRECOLCHETES', father)
@@ -285,8 +288,10 @@ def p_cabecalho_error(p):
     p[0] = pai
     global arrError 
     global showKey
+    token = p
+    column = find_column(token.lexer.lexdata, token)
 
-    arrError.append(error_handler.newError(showKey,'ERR-SYN-CABECALHO'))
+    arrError.append(error_handler.newError(showKey,'ERR-SYN-CABECALHO', linha=token.lineno(2), coluna=column))
 
 def p_lista_parametros(p):
     """lista_parametros : lista_parametros VIRGULA parametro
@@ -347,8 +352,10 @@ def p_parametro_error(p):
     p[0] = pai
     global arrError 
     global showKey
+    token = p
+    column = find_column(token.lexer.lexdata, token)
 
-    arrError.append(error_handler.newError(showKey,'ERR-SYN-PARAMETRO'))
+    arrError.append(error_handler.newError(showKey,'ERR-SYN-PARAMETRO', linha=token.lineno(2), coluna=column))
 
 
 def p_corpo(p):
@@ -434,8 +441,10 @@ def p_se_error(p):
     p[0] = pai
     global arrError 
     global showKey
+    token = p
+    column = find_column(token.lexer.lexdata, token)
 
-    arrError.append(error_handler.newError(showKey,'ERR-SYN-SE'))
+    arrError.append(error_handler.newError(showKey,'ERR-SYN-SE', linha=token.lineno(2), coluna=column))
 
 
 def p_repita(p):
@@ -469,8 +478,10 @@ def p_repita_error(p):
     p[0] = pai
     global arrError 
     global showKey
+    token = p
+    column = find_column(token.lexer.lexdata, token)
 
-    arrError.append(error_handler.newError(showKey,'ERR-SYN-REPITA'))
+    arrError.append(error_handler.newError(showKey,'ERR-SYN-REPITA', linha=token.lineno(2), coluna=column))
 
 def p_atribuicao(p):
     """atribuicao : var ATRIBUICAO expressao"""
@@ -521,8 +532,10 @@ def p_leia_error(p):
     p[0] = pai
     global arrError 
     global showKey
+    token = p
+    column = find_column(token.lexer.lexdata, token)
 
-    arrError.append(error_handler.newError(showKey,'ERR-SYN-LEIA'))
+    arrError.append(error_handler.newError(showKey,'ERR-SYN-LEIA', linha=token.lineno(2), coluna=column))
 
 
 def p_escreva(p):
@@ -778,8 +791,10 @@ def p_fator_error(p):
     p[0] = pai
     global arrError 
     global showKey
+    token = p
+    column = find_column(token.lexer.lexdata, token)
 
-    arrError.append(error_handler.newError(showKey,'ERR-SYN-FATOR'))
+    arrError.append(error_handler.newError(showKey,'ERR-SYN-FATOR', linha=token.lineno(2), coluna=column))
 
 def p_numero(p):
     """numero : NUM_INTEIRO
@@ -860,8 +875,10 @@ def p_lista_argumentos_error(p):
     p[0] = pai
     global arrError 
     global showKey
+    token = p
+    column = find_column(token.lexer.lexdata, token)
 
-    arrError.append(error_handler.newError(showKey,'ERR-SYN-LISTA-ARGUMENTOS'))
+    arrError.append(error_handler.newError(showKey,'ERR-SYN-LISTA-ARGUMENTOS', linha=token.lineno(2), coluna=column))
 
 
 def p_vazio(p):
@@ -871,23 +888,29 @@ def p_vazio(p):
     p[0] = pai
 
 
-def find_column(input_text, token):
-    last_cr = input_text.rfind('\n', 0, token.lexpos)
-    if last_cr < 0:
-        last_cr = -1
-    column = (token.lexpos - last_cr)
+def find_column(input_text, token, flag=False):
+    if (flag):
+        last_cr = input_text.rfind('\n', 0, token.lexpos)
+        if last_cr < 0:
+            last_cr = -1
+        column = (token.lexpos - last_cr)
+    else:
+        last_cr = input_text.rfind('\n', 0, token.lexpos(2))
+        if last_cr < 0:
+            last_cr = -1
+        column = (token.lexpos(2) - last_cr)
     return column
 
 
 def p_error(p):
     if p:
         token = p
-        column = find_column(p.lexer.lexdata, token)
+        column = find_column(p.lexer.lexdata, token, flag=True)
         print("Erro:[{line},{column}]: Erro próximo ao token '{token}'".format(
             line=token.lineno, column=column, token=token.value))
 
 # Build the parser.
-parser = yacc.yacc(method="LALR", optimize=True, start='programa', debug=True,
+parser = yacc.yacc(method="LALR", optimize=True, start='programa', debug=False,
                    debuglog=log, write_tables=False, tabmodule='tpp_parser_tab')
 
 if __name__ == "__main__":

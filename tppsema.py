@@ -6,10 +6,10 @@ from sys import argv, exit
 import logging
 
 logging.basicConfig(
-     level = logging.DEBUG,
-     filename = "sema.log",
-     filemode = "w",
-     format = "%(filename)10s:%(lineno)4d:%(message)s"
+    level=logging.DEBUG,
+    filename="sema.log",
+    filemode="w",
+    format="%(filename)10s:%(lineno)4d:%(message)s",
 )
 log = logging.getLogger()
 
@@ -25,26 +25,24 @@ from anytree import RenderTree, AsciiStyle
 
 from myerror import MyError
 
-error_handler = MyError('SemaErrors')
-
+showKey = False
+haveTPP = False
+arrError = []
+semTable = []
+error_handler = MyError("SemaErrors")
 root = None
-
-
-
-
-
 
 
 # Programa Principal.
 if __name__ == "__main__":
-    if(len(sys.argv) < 2):
-        raise TypeError(error_handler.newError('ERR-SEM-USE'))
+    if len(sys.argv) < 2:
+        raise TypeError(error_handler.newError("ERR-SEM-USE"))
 
-    aux = argv[1].split('.')
-    if aux[-1] != 'tpp':
-      raise IOError(error_handler.newError('ERR-SEM-NOT-TPP'))
+    aux = argv[1].split(".")
+    if aux[-1] != "tpp":
+        raise IOError(error_handler.newError("ERR-SEM-NOT-TPP"))
     elif not os.path.exists(argv[1]):
-        raise IOError(error_handler.newError('ERR-SEM-FILE-NOT-EXISTS'))
+        raise IOError(error_handler.newError("ERR-SEM-FILE-NOT-EXISTS"))
     else:
         data = open(argv[1])
         source_file = data.read()

@@ -36,7 +36,7 @@ def test_003():
     assert execute_test("teste-003.tpp") == True
 
 def test_004():
-    assert execute_test("bubble_sort-2020-2.tpp") == True
+    assert execute_test("teste-004.tpp") == True
 
 def test_005():
     assert execute_test("bubble_sort_2.tpp") == True
@@ -121,3 +121,6 @@ def test_031():
 
 def test_032():
     assert execute_test("verif_num_negativo.tpp") == True
+
+def test_033():
+    assert execute_test("bubble_sort-2020-2.tpp") == True

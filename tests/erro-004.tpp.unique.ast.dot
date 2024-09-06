@@ -1,0 +1,17 @@
+digraph tree {
+    "0x0" [label="programa"];
+    "0x1" [label="lista_declaracoes"];
+    "0x2" [label="declaracao"];
+    "0x3" [label="declaracao_funcao"];
+    "0x4" [label="tipo"];
+    "0x5" [label="INTEIRO"];
+    "0x6" [label="inteiro"];
+    "0x7" [label="ERR-SYN-CABECALHO"];
+    "0x0" -> "0x1";
+    "0x1" -> "0x2";
+    "0x2" -> "0x3";
+    "0x3" -> "0x4";
+    "0x3" -> "0x7";
+    "0x4" -> "0x5";
+    "0x5" -> "0x6";
+}
