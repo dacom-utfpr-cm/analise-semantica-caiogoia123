@@ -35,6 +35,62 @@ le = MyError('LexerErrors')
 
 root = None
 
+
+# Para a analise semantica:
+def generate_syntax_tree(args):
+    error_handler = MyError('SemaErrors')
+    global root
+    arrError = []
+    showKey = False
+    haveTPP = False
+    locationTTP = None
+
+    # Parsing dos argumentos
+    for i in range(len(args)):
+        aux = args[i].split('.')
+        if aux[-1] == 'tpp':
+            haveTPP = True
+            locationTTP = i 
+        if args[i] == '-k':
+            showKey = True
+
+    try:
+        if len(args) < 3 and showKey:
+            arrError.append((error_handler.newError(showKey, 'ERR-SYN-USE')))
+            raise IOError(arrError)    
+        if not haveTPP:
+            arrError.append((error_handler.newError(showKey, 'ERR-SYN-NOT-TPP')))
+            raise IOError(arrError)           
+        elif not os.path.exists(args[locationTTP]):
+            arrError.append((error_handler.newError(showKey, 'ERR-SYN-FILE-NOT-EXISTS')))
+            raise IOError(arrError)
+        else:
+            with open(args[locationTTP], 'r') as data:
+                source_file = data.read()
+                parser.parse(source_file)
+                
+
+        if root and root.children != ():
+            #print("Generating Syntax Tree Graph...")
+            UniqueDotExporter(root).to_picture(args[locationTTP] + ".unique.ast.png")
+            DotExporter(root).to_dotfile(args[locationTTP] + ".ast.dot")
+            UniqueDotExporter(root).to_dotfile(args[locationTTP] + ".unique.ast.dot")
+            #print("Graph was generated.\nOutput file: " + args[locationTTP] + ".ast.png")
+        else:
+            arrError.append(error_handler.newError(showKey, 'WAR-SYN-NOT-GEN-SYN-TREE'))
+
+        if len(arrError) > 0:
+            raise IOError(arrError)
+
+        
+        return root
+
+    except Exception as e:
+        for i in range(len(e.args[0])):
+            print(e.args[0][i])
+        return None
+
+
 # Sub-árvore.
 #       (programa)
 #           |

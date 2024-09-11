@@ -13,10 +13,22 @@ class MyError:
         message = f"Erro[{linha}][{coluna}]: " if linha is not None and coluna is not None else ""
 
         if key:
-            message += self.config.get(self.errorType, key)
+            # Obtém a mensagem do arquivo de propriedades
+            message_template = self.config.get(self.errorType, key)
 
-        if data:
-            data_str = ", ".join(f"{k}: {v}" for k, v in data.items())
-            message += ", " + data_str if data_str else ""
+            # Substitui os placeholders '{}' pelos valores no dicionário `data`
+            if data:
+            # Converte os valores em uma lista e conta o número total de itens
+                num_items = sum(len(v) if isinstance(v, list) else 1 for v in data.values())
+                # print(f"Total de itens dentro de data.values(): {num_items}")
 
+                if num_items == 1:
+                    message = message_template.format(*data.values())
+                else:
+                    # print(len(*data.values()))
+                    # print(*data.values())
+                    dataAux = data['data']
+                    message = message_template.format(*dataAux)
+            else:
+                return message_template
         return message
